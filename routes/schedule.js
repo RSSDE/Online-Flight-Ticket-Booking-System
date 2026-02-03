@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const db = require("../utils/db");
 
-/* ===============================
-   FLIGHT SCHEDULE (WITH FROM → TO)
-================================ */
 router.get("/schedule", (req, res) => {
-  const { date } = req.query;
+  const { date, from, to } = req.query;
+
+  // Safety check
+  if (!date || !from || !to) {
+    return res.json([]);
+  }
 
   const sql = `
     SELECT
@@ -30,10 +32,13 @@ router.get("/schedule", (req, res) => {
     JOIN airports a2 ON f.destination_airport = a2.airport_id
 
     WHERE DATE(fs.departure_time) = ?
+      AND a1.code = ?
+      AND a2.code = ?
+
     ORDER BY fs.departure_time
   `;
 
-  db.query(sql, [date], (err, result) => {
+  db.query(sql, [date, from, to], (err, result) => {
     if (err) {
       console.error("FLIGHT SCHEDULE ERROR:", err);
       return res.status(500).json({ message: "DB error" });

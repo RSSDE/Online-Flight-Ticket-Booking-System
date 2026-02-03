@@ -2,9 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../utils/db");
 
-/* ===============================
-   ADD NEW FLIGHT (ADMIN)
-================================ */
+
 router.post("/add-flight", (req, res) => {
   const {
     flight_number,
@@ -14,7 +12,7 @@ router.post("/add-flight", (req, res) => {
     destination_airport
   } = req.body;
 
-  // 🔒 Validation
+
   if (
     !flight_number ||
     !airline_id ||
@@ -73,9 +71,7 @@ router.get("/flights", (req, res) => {
   });
 });
 
-/* ===============================
-   DELETE FLIGHT
-================================ */
+
 router.delete("/flight/:id", (req, res) => {
   const flightId = req.params.id;
 
@@ -91,9 +87,7 @@ router.delete("/flight/:id", (req, res) => {
   );
 });
 
-/* ===============================
-   UPDATE FLIGHT
-================================ */
+
 router.put("/flight/:id", (req, res) => {
   const flightId = req.params.id;
   const {

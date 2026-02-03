@@ -2,9 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../utils/db");
 
-/* =========================
-   GET ALL HOTELS
-========================= */
+
 router.get("/", (req, res) => {
   const sql = `
     SELECT 
@@ -12,22 +10,37 @@ router.get("/", (req, res) => {
       h.hotel_name,
       h.city,
       h.price_per_night,
+
       h.total_rooms -
-      IFNULL(SUM(b.rooms_booked), 0) AS available_rooms
+      IFNULL(
+        (SELECT SUM(rooms_booked)
+         FROM hotel_bookings
+         WHERE hotel_id = h.hotel_id),
+      0) AS available_rooms,
+
+      (
+        SELECT image_url
+        FROM hotel_images
+        WHERE hotel_id = h.hotel_id
+        AND is_thumbnail = 1
+        LIMIT 1
+      ) AS thumbnail
+
     FROM hotels h
-    LEFT JOIN hotel_bookings b ON h.hotel_id = b.hotel_id
-    GROUP BY h.hotel_id
   `;
 
   db.query(sql, (err, result) => {
-    if (err) return res.status(500).json({ message: "DB error" });
+    if (err) {
+      console.error("HOTELS API ERROR:", err);
+      return res.status(500).json({ message: "DB error", error: err });
+    }
     res.json(result);
   });
 });
 
-/* =========================
-   BOOK HOTEL
-========================= */
+
+
+
 router.post("/book", (req, res) => {
   const { user_id, hotel_id, check_in, check_out, rooms_booked } = req.body;
 
@@ -47,9 +60,7 @@ router.post("/book", (req, res) => {
   );
 });
 
-/* =========================
-   HOTEL TICKET
-========================= */
+
 router.get("/ticket/:bookingId", (req, res) => {
   db.query(
     `
@@ -72,9 +83,7 @@ router.get("/ticket/:bookingId", (req, res) => {
     }
   );
 });
-/* =========================
-   USER HOTEL BOOKING HISTORY
-========================= */
+
 router.get("/my-bookings/:userId", (req, res) => {
   const { userId } = req.params;
 
@@ -88,9 +97,14 @@ router.get("/my-bookings/:userId", (req, res) => {
       b.rooms_booked,
       h.price_per_night,
       b.status,
-      b.booking_date
+      b.booking_date,
+      img.image_url AS hotel_image   -- ✅ IMPORTANT
     FROM hotel_bookings b
-    JOIN hotels h ON b.hotel_id = h.hotel_id
+    JOIN hotels h 
+      ON b.hotel_id = h.hotel_id
+    LEFT JOIN hotel_images img
+      ON h.hotel_id = img.hotel_id
+     AND img.is_thumbnail = 1        -- ✅ thumbnail only
     WHERE b.user_id = ?
     ORDER BY b.booking_date DESC
   `;
@@ -104,9 +118,8 @@ router.get("/my-bookings/:userId", (req, res) => {
   });
 });
 
-/* =========================
-   CANCEL HOTEL BOOKING
-========================= */
+
+
 router.put("/cancel/:bookingId", (req, res) => {
   const { bookingId } = req.params;
 
@@ -125,5 +138,36 @@ router.put("/cancel/:bookingId", (req, res) => {
     }
   );
 });
+
+router.get("/:hotelId", (req, res) => {
+  const { hotelId } = req.params;
+
+  const hotelSql = `
+    SELECT hotel_id, hotel_name, city, price_per_night
+    FROM hotels
+    WHERE hotel_id = ?
+  `;
+
+  const imageSql = `
+    SELECT image_url
+    FROM hotel_images
+    WHERE hotel_id = ?
+  `;
+
+  db.query(hotelSql, [hotelId], (err, hotelResult) => {
+    if (err || hotelResult.length === 0)
+      return res.status(404).json({ message: "Hotel not found" });
+
+    db.query(imageSql, [hotelId], (err, imageResult) => {
+      if (err) return res.status(500).json({ message: "Image error" });
+
+      res.json({
+        ...hotelResult[0],
+        images: imageResult.map(img => img.image_url)
+      });
+    });
+  });
+});
+
 
 module.exports = router;

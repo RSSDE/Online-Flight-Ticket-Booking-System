@@ -42,7 +42,7 @@ router.get("/search", (req, res) => {
 });
 
 
-/* ================= GET AVAILABLE DATES ================= */
+
 router.get("/dates", (req, res) => {
   const { from, to } = req.query;
 
@@ -66,7 +66,7 @@ router.get("/dates", (req, res) => {
   });
 });
 
-/* ================= GET UNIQUE CITIES ================= */
+
 router.get("/cities", (req, res) => {
   const sql = `
     SELECT DISTINCT

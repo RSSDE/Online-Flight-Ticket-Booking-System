@@ -3,7 +3,7 @@ const db = require("../utils/db");
 
 const router = express.Router();
 
-/* ================= ADD PAYMENT ================= */
+
 router.post("/pay", (req, res) => {
   const { booking_id, amount, payment_method } = req.body;
 
@@ -22,7 +22,7 @@ router.post("/pay", (req, res) => {
       return res.status(500).json({ message: "Payment failed" });
     }
 
-    // Update booking status
+    
     db.query(
       "UPDATE bookings SET status='CONFIRMED' WHERE booking_id=?",
       [booking_id]

@@ -1,12 +1,12 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const db = require("../utils/db");
+const config = require("../utils/config");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-/* ===============================
-   REGISTER
-================================ */
+/* ================= REGISTER ================= */
 router.post("/register", (req, res) => {
   const { name, email, phone, password } = req.body;
 
@@ -21,16 +21,11 @@ router.post("/register", (req, res) => {
     [email],
     (err, result) => {
       if (err) {
-        console.error("DB select error:", err);
-        return res.status(500).json({
-          message: "Database error",
-        });
+        return res.status(500).json({ message: "Database error" });
       }
 
       if (result.length > 0) {
-        return res.status(400).json({
-          message: "User already exists",
-        });
+        return res.status(400).json({ message: "User already exists" });
       }
 
       const hashedPassword = bcrypt.hashSync(password, 10);
@@ -40,10 +35,7 @@ router.post("/register", (req, res) => {
         [name, email, phone, hashedPassword],
         (err, insertResult) => {
           if (err) {
-            console.error("DB insert error:", err);
-            return res.status(500).json({
-              message: "Registration failed",
-            });
+            return res.status(500).json({ message: "Registration failed" });
           }
 
           res.status(201).json({
@@ -56,13 +48,10 @@ router.post("/register", (req, res) => {
   );
 });
 
-/* ===============================
-   LOGIN  (MOST IMPORTANT FIX)
-================================ */
+/* ================= LOGIN ================= */
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  // ✅ validation
   if (!email || !password) {
     return res.status(400).json({
       message: "Email and password are required",
@@ -74,30 +63,36 @@ router.post("/login", (req, res) => {
     [email],
     (err, result) => {
       if (err) {
-        console.error("DB error:", err);
-        return res.status(500).json({
-          message: "Database error",
-        });
+        return res.status(500).json({ message: "Database error" });
       }
 
       if (result.length === 0) {
-        return res.status(400).json({
-          message: "User not found",
-        });
+        return res.status(400).json({ message: "User not found" });
       }
 
       const user = result[0];
       const isMatch = bcrypt.compareSync(password, user.password);
 
       if (!isMatch) {
-        return res.status(400).json({
-          message: "Invalid password",
-        });
+        return res.status(400).json({ message: "Invalid password" });
       }
 
-      // ✅ SUCCESS (FRONTEND FRIENDLY)
+      // 🔐 JWT TOKEN
+    const token = jwt.sign(
+  {
+    user_id: user.user_id,
+    email: user.email,
+  },
+  config.JWT_SECRET,
+  {
+    expiresIn: config.JWT_EXPIRES_IN || "1d", // 🛡️ fallback
+  }
+);
+
+
       res.status(200).json({
         message: "Login successful",
+        token,
         user: {
           user_id: user.user_id,
           name: user.name,
@@ -108,4 +103,5 @@ router.post("/login", (req, res) => {
   );
 });
 
+/* 🔥 THIS LINE WAS MISSING */
 module.exports = router;

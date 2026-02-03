@@ -2,9 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../utils/db");
 
-/* ===============================
-   ADMIN LOGIN (PLAIN PASSWORD)
-================================ */
+
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -31,7 +29,7 @@ router.post("/login", (req, res) => {
 
       console.log("DB PASSWORD:", admin.password);
 
-      // ✅ PLAIN TEXT COMPARISON (GUARANTEED)
+    
       if (password !== admin.password) {
         return res.status(401).json({ message: "Invalid password" });
       }

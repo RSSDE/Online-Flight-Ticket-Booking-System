@@ -2,9 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../utils/db");
 
-/* =========================
-   ADMIN HOTEL BOOKINGS
-========================= */
+
 router.get("/hotel-bookings", (req, res) => {
   const sql = `
     SELECT

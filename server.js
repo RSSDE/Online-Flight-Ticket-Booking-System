@@ -1,3 +1,5 @@
+const path = require("path");
+
 const express = require("express");
 const cors = require("cors");
 
@@ -44,6 +46,17 @@ app.use("/api/admin", require("./routes/adminDashboard"));
 app.use("/api", require("./routes/schedule"));
 app.use("/api/hotels", require("./routes/hotels"));
 app.use("/api/admin", require("./routes/adminHotels"));
+app.use("/uploads", express.static("uploads"));
+app.use("/api/airports", require("./routes/airports"));
+app.use("/api/contact", require("./routes/contact"));
+app.use("/api/admin/contact", require("./routes/adminContact"));
+app.use("/api/seats", require("./routes/seats"));
+
+
+
+
+
+
 
 
 

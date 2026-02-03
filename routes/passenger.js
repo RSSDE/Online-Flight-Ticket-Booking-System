@@ -1,9 +1,9 @@
 const express = require("express");
 const db = require("../utils/db");
 
-const router = express.Router(); // ✅ THIS WAS MISSING
+const router = express.Router(); 
 
-// ADD PASSENGER
+
 router.post("/add", (req, res) => {
   console.log("Passenger BODY:", req.body);
 
@@ -40,4 +40,4 @@ router.post("/add", (req, res) => {
   );
 });
 
-module.exports = router; // ✅ MUST EXPORT
+module.exports = router;

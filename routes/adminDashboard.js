@@ -2,9 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../utils/db");
 
-/* ===============================
-   ADMIN DASHBOARD STATS
-================================ */
+
 router.get("/dashboard-stats", (req, res) => {
   const statsQuery = `
     SELECT

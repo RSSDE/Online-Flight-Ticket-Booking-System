@@ -59,7 +59,7 @@ WHERE fs.schedule_id = ?;
 
 
 
-// Get all schedules
+
 router.get('/getAllflights', (req, res) => {
     const sql = "SELECT * FROM FlightSchedule";
     pool.query(sql, (err, data) => {
@@ -68,7 +68,7 @@ router.get('/getAllflights', (req, res) => {
     });
 });
 
-// // Get schedule by ID
+
 router.get('/:id', (req, res) => {
     const scheduleId = req.params.id;
     const sql = "SELECT * FROM FlightSchedule WHERE schedule_id = ?";
@@ -78,7 +78,7 @@ router.get('/:id', (req, res) => {
 });
 
 
-// Create schedule
+
 router.post('/addflightschedules', (req, res) => {
     const { flight_id, departure_time, arrival_time, price } = req.body;
     const sql = "INSERT INTO FlightSchedule (flight_id, departure_time, arrival_time, price) VALUES (?, ?, ?, ?)";
@@ -88,7 +88,7 @@ router.post('/addflightschedules', (req, res) => {
     });
 });
 
-// Update full schedule (PUT)
+
 router.put('/flightschedulesUpdate/:id', (req, res) => {
     const scheduleId = req.params.id;
     const { flight_id, departure_time, arrival_time, price } = req.body;
@@ -100,7 +100,7 @@ router.put('/flightschedulesUpdate/:id', (req, res) => {
 });
 
 
-// Delete schedule
+
 router.delete('/FlightScheduleDelete/:id', (req, res) => {
     const scheduleId = req.params.id;
     const sql = "DELETE FROM FlightSchedule WHERE schedule_id = ?";
